@@ -3,14 +3,20 @@
 #include <stdio.h>
 %}
 
+%union{ 
+    double dval; 
+}
+
 /* declare tokens */
-%token NUM
+%token <dval>NUM
 %token ADD SUB MUL DIV ABS
 %token EOL
 
+%type<dval> exp factor term //bison 규칙의 자료형
+
 %%
 calclist : {}
-         | calclist exp EOL {printf("= %d\n", $2);}
+         | calclist exp EOL {printf("= %lf\n", $2);}
 ;
 
 exp : factor
@@ -23,7 +29,7 @@ factor : term
         | factor DIV term {$$ = $1 / $3;}
 ;
 
-term : NUM 
+term : NUM
      | ABS NUM {$2 > 0 ? $2 : -$2;}
 ;
 
