@@ -8,6 +8,7 @@
 }
 
 /* declare tokens */
+%token OP CP
 %token <dval>NUM
 %token ADD SUB MUL DIV ABS
 %token EOL
@@ -21,7 +22,7 @@ calclist : {}
 
 exp : factor
     | exp ADD factor {$$ = $1 + $3;}
-    | exp DIV factor {$$ = $1 - $3;}
+    | exp SUB factor {$$ = $1 - $3;}
 ;
 
 factor : term 
@@ -30,7 +31,8 @@ factor : term
 ;
 
 term : NUM
-     | ABS NUM {$2 > 0 ? $2 : -$2;}
+     | ABS NUM { $$ = $2 > 0 ? $2 : -$2;}
+     | OP exp CP {$$ = $2;}
 ;
 
 %% 
