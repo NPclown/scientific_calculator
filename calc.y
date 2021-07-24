@@ -1,52 +1,53 @@
-/* scientific calculate */
+/* calculator with AST */
 %{
-#include <stdio.h>
-
+# include <stdio.h>
+# include <stdlib.h>
+# include "calc.h"
 %}
 
 %define parse.error verbose
 
-%union{ 
-	double dval; 
+%union {
+ struct ast *a;
+ double d;
+ struct symbol *s; /* which symbol */
+ struct symlist *sl;
 }
 
 /* declare tokens */
-%token OP CP
-%token <dval>NUM
-%token ADD SUB MUL DIV ABS
+%token <d> NUMBER
+%token <s> NAME
 %token EOL
 
+%token LET RUN
 
-%type<dval> exp factor term //bison 규칙의 자료형
+%right '='
+%left '+' '-'
+%left '*' '/'
+%nonassoc '|' UMINUS
 
+%type <a> exp stmt list explist
+%type <sl> symlist
+
+%start calclist
 %%
-calclist : {}
-		 | calclist exp EOL {printf("= %lf\n", $2);}
+calclist: /* nothing */
+    | calclist exp RUN{
+        printf("= %4.4g\n> ", eval($2));
+        treefree($2);
+    }
+    | calclist error RUN{ yyerrok; printf("> "); }
+ ;
+
+exp:  exp '+' exp { $$ = newast('+', $1,$3); }
+    | exp '-' exp { $$ = newast('-', $1,$3);}
+    | exp '*' exp { $$ = newast('*', $1,$3); }
+    | exp '/' exp { $$ = newast('/', $1,$3); }
+    | '|' exp { $$ = newast('|', $2, NULL); }
+    | '(' exp ')' { $$ = $2; }
+    | '-' exp %prec UMINUS { $$ = newast('M', $2, NULL); }
+    | NUMBER { $$ = newnum($1); }
+    | NAME { $$ = newref($1); }
+    | LET NAME '=' exp { $$ = newasgn($2, $4); }
 ;
-
-exp : factor
-	| exp ADD factor {$$ = $1 + $3;}
-	| exp SUB factor {$$ = $1 - $3;}
-;
-
-factor : term
-	| factor MUL term {$$ = $1 * $3;}
-	| factor DIV term {$$ = $1 / $3;}
-;
-
-term : NUM
-	 | ABS NUM { $$ = $2 > 0 ? $2 : -$2;}
-	 | OP exp CP {$$ = $2;}
-;
-
-
-%% 
-
-int main(int argc, char ** argv){
-	yyparse();
-}
-
-yyerror(char *s)
-{
- fprintf(stderr, "error: %s\n", s);
-}
+%%

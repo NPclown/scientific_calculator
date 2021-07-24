@@ -1,19 +1,33 @@
-/* scientific calculate */
-
+%option noyywrap nodefault yylineno
 %{
-    #include "calc.tab.h"
+# include "calc.h"
+# include "calc.tab.h"
 %}
 
+/* float exponent */
+EXP ([Ee][-+]?[0-9]+)
+
 %%
-"("     {return OP;}
-")"     {return CP;}
-"+"     {return ADD;}
-"-"     {return SUB;}
-"*"     {return MUL;}
-"/"     {return DIV;}
-"|"     {return ABS;}
-([0-9]+|[0-9]*\.[0-9]+) {yylval.dval = atof(yytext); return NUM; }
-\n { return EOL; }
-[ \t]* { /* ignore whitespace */ }
-. { printf("Mystery character %c\n", *yytext); return EOL;}
+ /* single character ops */
+"+" |
+"-" |
+"*" |
+"/" |
+"=" |
+"|" |
+"(" |
+")" { return yytext[0]; }
+
+ /* keywords */
+"run" { return RUN;}
+"let" { return LET;}
+
+[a-zA-Z][a-zA-Z0-9]* { yylval.s = lookup(yytext); return NAME; }
+[0-9]+"."[0-9]*{EXP}? |
+"."?[0-9]+{EXP}? { yylval.d = atof(yytext); return NUMBER; }
+"//".* 
+[ \t] /* ignore whitespace */ 
+
+\n {  }
+. { yyerror("Mystery character %c\n", *yytext); }
 %%
