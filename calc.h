@@ -18,36 +18,37 @@ void yyerror(char *s, ...);
 /* nodes in the abstract syntax tree */
 /* all have common initial nodetype */
 struct ast {
- int nodetype;
- struct ast *l;
- struct ast *r;
+    int nodetype;
+    struct ast *l;
+    struct ast *r;
 };
 struct numval {
- int nodetype; /* type K */
- double number;
+    int nodetype; /* type K */
+    double number;
 };
 struct symref {
- int nodetype; /* type N */
- struct symbol *s;
+    int nodetype; /* type N */
+    struct symbol *s;
 };
 struct symasgn {
- int nodetype; /* type = */
- struct symbol *s;
- struct ast *v; /* value */
+    int nodetype; /* type = */
+    struct symbol *s;
+    struct ast *v; /* value */
 };
 
 /* symbol table */
 struct symbol { /* a variable name */
- char *name;
- double value;
- struct ast *func; /* stmt for the function */
- struct symlist *syms; /* list of dummy args */
+    char *name;
+    double value;
+    int use;
+    struct ast *func; /* stmt for the function */
+    struct symlist *syms; /* list of dummy args */
 };
 
 /* list of symbols, for an argument list */
 struct symlist {
- struct symbol *sym;
- struct symlist *next;
+    struct symbol *sym;
+    struct symlist *next;
 };
 
 /* simple symtab of fixed size */

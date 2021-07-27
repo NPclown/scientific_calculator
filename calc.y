@@ -36,7 +36,8 @@ calclist: /* nothing */
         printf("= %4.4g\n> ", eval($2));
         treefree($2);
     }
-    | calclist error RUN{ yyerrok; printf("> "); }
+    | calclist LET NAME '=' exp RUN{ eval(newasgn($3, $5)); printf("Defined\n >"); }
+    | calclist error RUN{ yyerrok; printf("123> "); }
  ;
 
 exp:  exp '+' exp { $$ = newast('+', $1,$3); }
@@ -48,6 +49,6 @@ exp:  exp '+' exp { $$ = newast('+', $1,$3); }
     | '-' exp %prec UMINUS { $$ = newast('M', $2, NULL); }
     | NUMBER { $$ = newnum($1); }
     | NAME { $$ = newref($1); }
-    | LET NAME '=' exp { $$ = newasgn($2, $4); }
+    | NAME '=' exp { $$ = newasgn($1, $3); }
 ;
 %%
