@@ -19,7 +19,7 @@ EXP ([Ee][-+]?[0-9]+)
 ")" { return yytext[0]; }
 
  /* keywords */
-"run" { return RUN;}
+(r|R)(u|U)(n|N) { return RUN;}
 "let" { return LET;}
 
 [a-zA-Z][a-zA-Z0-9]* { yylval.s = lookup(yytext); return NAME; }
@@ -28,6 +28,6 @@ EXP ([Ee][-+]?[0-9]+)
 "//".* 
 [ \t] /* ignore whitespace */ 
 
-\n {  }
-. { yyerror("Mystery character %c\n", *yytext); }
+\n { }
+. { yyerror("Mystery character %c\n", *yytext);}
 %%

@@ -36,6 +36,7 @@ struct symasgn {
     struct ast *v; /* value */
 };
 
+
 /* symbol table */
 struct symbol { /* a variable name */
     char *name;
@@ -61,6 +62,6 @@ struct ast *newasgn(struct symbol *s, struct ast *v);
 struct ast *newnum(double d);
 
 /* evaluate an AST */
-double eval(struct ast *);
+double eval(struct ast *, int * check);
 /* delete and free an AST */
 void treefree(struct ast *);

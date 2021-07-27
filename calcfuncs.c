@@ -103,6 +103,7 @@ void treefree(struct ast *a){
         /* one subtree */
         case '|':
         case 'M':
+        case 'P':
             treefree(a->l);
         /* no subtree */
         case 'K': case 'N':
@@ -117,10 +118,11 @@ void treefree(struct ast *a){
     free(a); /* always free the node itself */
 }
 
-double eval(struct ast *a) {
+double eval(struct ast *a, int *check) {
     double v;
     if(!a) {
         yyerror("internal error, null eval");
+        *check = -1;
         return 0.0;
     }
     switch(a->nodetype) {
@@ -128,24 +130,26 @@ double eval(struct ast *a) {
         case 'K': v = ((struct numval *)a)->number; break;
         /* name reference */
         case 'N': 
-        
             if(((struct symref *)a)->s->use == -1) {
                yyerror("undefined variablese %s", ((struct symref *)a)->s->name);
+               *check = -1;
+               return 0;
             }
             v = ((struct symref *)a)->s->value; 
             break;
         /* assignment */
         case '=': 
-            v = ((struct symasgn *)a)->s->value = eval(((struct symasgn *)a)->v); 
+            v = ((struct symasgn *)a)->s->value = eval(((struct symasgn *)a)->v, check); 
             ((struct symasgn *)a)->s->use = 1;
             break;
         /* expressions */
-        case '+': v = eval(a->l) + eval(a->r); break;
-        case '-': v = eval(a->l) - eval(a->r); break;
-        case '*': v = eval(a->l) * eval(a->r); break;
-        case '/': v = eval(a->l) / eval(a->r); break;
-        case '|': v = fabs(eval(a->l)); break;
-        case 'M': v = -eval(a->l); break;
+        case '+': v = eval(a->l, check) + eval(a->r, check); break;
+        case '-': v = eval(a->l, check) - eval(a->r, check); break;
+        case '*': v = eval(a->l, check) * eval(a->r, check); break;
+        case '/': v = eval(a->l, check) / eval(a->r, check); break;
+        case '|': v = fabs(eval(a->l, check)); break;
+        case 'M': v = -eval(a->l, check); break;
+        case 'P': v = eval(a->l, check); break;
         default: printf("internal error: bad node %c\n", a->nodetype);
     }
 
