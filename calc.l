@@ -22,12 +22,14 @@ EXP ([Ee][-+]?[0-9]+)
 (r|R)(u|U)(n|N) { return RUN;}
 "let" { return LET;}
 
+ /* name */
 [a-zA-Z][a-zA-Z0-9]* { yylval.s = lookup(yytext); return NAME; }
+ 
+ /*number*/
 [0-9]+"."[0-9]*{EXP}? |
 "."?[0-9]+{EXP}? { yylval.d = atof(yytext); return NUMBER; }
 "//".* 
-[ \t] /* ignore whitespace */ 
-
-\n { }
+[ \t] {}
+\n {}
 . { yyerror("Mystery character %c\n", *yytext);}
 %%
